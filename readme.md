@@ -2,6 +2,8 @@
 
 Now that we have a good grasp over Python web frameworks, it is time to understand in depth about Docker, a containerization platform.
 
+##### Dt. 19 May, 2025.
+
 ## **🧱 Section 1: Core Concepts & Architecture**
 
 ### **1.1 Containers vs Virtual Machines (VMs)**
@@ -227,3 +229,230 @@ After the session, my mentor and I discussed about Tenant in detail, how various
 Also, we have a potluck party day after tomorrow, so we finalized a dish that we are going to prepare.
 
 So that's it for today. See you tomorrow. Bye!
+
+##### Dt. 20 May, 2025.
+
+## **📦 Section 3: Building & Managing Docker Images**
+
+### **3.1 Dockerfile Syntax & Basics**
+
+A `Dockerfile` is a **recipe** for building a Docker image. It's made of instructions that get executed step-by-step.
+
+#### 🧾 Sample `Dockerfile`
+
+```dockerfile
+# 1. Base image
+FROM python:3.11-slim
+
+# 2. Working directory inside container
+WORKDIR /app
+
+# 3. Copy app files
+COPY . .
+
+# 4. Install dependencies
+RUN pip install -r requirements.txt
+
+# 5. Default command
+CMD ["python", "app.py"]
+```
+
+#### 🧱 Key Dockerfile Instructions
+
+| Instruction    | Purpose                                      |
+| -------------- | -------------------------------------------- |
+| `FROM`         | Base image (first line, required)            |
+| `RUN`          | Run shell commands during image build        |
+| `COPY` / `ADD` | Copy files/folders into the image            |
+| `WORKDIR`      | Set working directory inside container       |
+| `CMD`          | Default command to run when container starts |
+| `EXPOSE`       | Document the port the container will use     |
+| `ENV`          | Set environment variables                    |
+| `ENTRYPOINT`   | Preferred startup command behavior           |
+| `VOLUME`       | Declare volume mount points                  |
+
+### **3.2 Build Context & Multi-Stage Builds**
+
+#### 🔍 Build Context
+
+The build context is the folder you pass to the `docker build` command — everything inside it is **sent to the Docker daemon**.
+
+```bash
+docker build -t myapp:latest .
+```
+
+- The dot (`.`) means "current directory" as context.
+- Avoid including `.git/`, `venv/`, etc. — use a `.dockerignore` file.
+
+#### 📁 `.dockerignore`
+
+```bash
+.git
+__pycache__/
+*.pyc
+venv/
+```
+
+#### 🧱 Multi-Stage Builds (Optimize image size)
+
+```dockerfile
+# Stage 1: Builder
+FROM node:18 as builder
+WORKDIR /app
+COPY . .
+RUN npm install && npm run build
+
+# Stage 2: Final image
+FROM nginx:alpine
+COPY --from=builder /app/build /usr/share/nginx/html
+```
+
+> ⚡ Reduces final image size — great for production!
+
+### **3.3 Tagging, Pushing, Pulling, Pruning**
+
+#### 📦 Build and Tag an Image
+
+```bash
+docker build -t username/myapp:1.0 .
+```
+
+#### ⬆️ Push to Docker Hub
+
+```bash
+docker login
+docker push username/myapp:1.0
+```
+
+#### ⬇️ Pull from Docker Hub
+
+```bash
+docker pull username/myapp:1.0
+```
+
+#### 🗑️ Clean Up
+
+```bash
+# Remove dangling images (untagged)
+docker image prune
+
+# Remove all unused images
+docker image prune -a
+
+# List images
+docker images
+```
+
+## **🚀 Section 4: Container Lifecycle**
+
+### **4.1 Creating, Running, Attaching to Containers**
+
+#### ▶️ Create and Run a Container
+
+```bash
+docker run -d --name myapp -p 5000:5000 myimage:latest
+```
+
+| Flag     | Meaning                            |
+| -------- | ---------------------------------- |
+| `-d`     | Detached mode (runs in background) |
+| `--name` | Assign a name to the container     |
+| `-p`     | Map port `host:container`          |
+
+#### 🧪 Interactively Run a Container
+
+```bash
+docker run -it ubuntu bash
+```
+
+- `-i`: Interactive
+- `-t`: Allocate TTY (terminal)
+- `ubuntu`: Image name
+- `bash`: Start with bash shell
+
+#### 🔗 Attach to a Running Container
+
+```bash
+docker attach myapp
+```
+
+Or spawn a new shell into it:
+
+```bash
+docker exec -it myapp bash
+```
+
+> Useful for debugging or manual inspections.
+
+### **4.2 Inspect, Logs, Stats**
+
+#### 📋 Inspect Container Details
+
+```bash
+docker inspect myapp
+```
+
+Outputs full JSON about mounts, network, config, etc.
+
+#### 📜 View Logs
+
+```bash
+docker logs myapp
+```
+
+Use `-f` to follow logs in real-time:
+
+```bash
+docker logs -f myapp
+```
+
+#### 📊 View Stats (Live)
+
+```bash
+docker stats
+```
+
+### **4.3 Start, Stop, Restart, Remove**
+
+```bash
+docker stop myapp
+docker start myapp
+docker restart myapp
+docker rm myapp
+```
+
+- Use `-f` with `rm` to force remove a running container.
+
+#### 🧹 Clean up all stopped containers
+
+```bash
+docker container prune
+```
+
+### **4.4 Resource Limits (CPU, Memory, PID)**
+
+#### 🧠 Limit Memory
+
+```bash
+docker run -m 256m myapp
+```
+
+#### 🧮 Limit CPU
+
+```bash
+docker run --cpus="1.5" myapp
+```
+
+#### 🚫 Limit Max Processes (PIDs)
+
+```bash
+docker run --pids-limit=100 myapp
+```
+
+Later, I read about [psycopg2 - cursor.mogrify()](https://www.geeksforgeeks.org/format-sql-in-python-with-psycopgs-mogrify/) method to insert parametrized SQL statements in FastAPI.
+
+I helped solve Package related issues for one of my co-trainees. Later, one of my other co-trainee gave me an overview for Docker and DockerHub.
+
+We have planned for having Cold Sandwich for tomorrow's Potluck party!
+
+So that's it for today, see you tomorrow. Bye!
