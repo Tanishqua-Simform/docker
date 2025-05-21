@@ -456,3 +456,29 @@ I helped solve Package related issues for one of my co-trainees. Later, one of m
 We have planned for having Cold Sandwich for tomorrow's Potluck party!
 
 So that's it for today, see you tomorrow. Bye!
+
+##### Dt. 21 May, 2025.
+
+I have watched a video tutorial of [Techworld by Nana](https://youtu.be/3c-iBn73dDE) and following is a short summary of commands I have encountered in the tutorial as of now -
+
+- **docker pull <image_name>** => Pull image from repository
+- **docker run <image_name>** => Run a new container
+- **docker start <container_id>** => Start a stopped container
+- **docker stop <container_id>** => Stop a running container
+- **docker rm <container_id>** => Remove Container
+- **docker run -d <image_name>** => detached mode (runs in the background)
+- **docker run -p<host_port>:<container_port> <image_name>** => Run container on specific port
+- **docker ps** => List of Running Containers
+- **docker ps -a** => List of all running and stopped Container
+- **docker images** => List of all pulled Images
+- **docker rmi <image_name>** => Remove a pulled Image
+- **docker exec -it <container_id>** => Executes the Interactive Terminal inside of a Container
+- **docker run -d --name <container_name> <image_name>** => for name of container
+
+I found this blog fundamental for an overview of Docker -> [Medium - Docker Tutorial for beginners](https://medium.com/geekculture/docker-tutorial-for-beginners-8af6a4967378)
+
+Now the fun part of the day - We had the Potluck Party today, and it was amazingggg. We got to taste so many delicious delicacies - featuring lip-smacking Coleslaw Sandwich (made by our python trainees team), and super delicious Mojito (by python developers team).
+
+Few of the other tasty dishes were - Cheese Loaded Mexican Nachos, Monaco bites, and everybody's favourite - Pani puri and Dahi Puri.
+
+So that's it for today, see you tomorrow. Bye!
