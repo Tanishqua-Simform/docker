@@ -472,7 +472,7 @@ I have watched a video tutorial of [Techworld by Nana](https://youtu.be/3c-iBn73
 - **docker ps -a** => List of all running and stopped Container
 - **docker images** => List of all pulled Images
 - **docker rmi <image_name>** => Remove a pulled Image
-- **docker exec -it <container_id>** => Executes the Interactive Terminal inside of a Container
+- **docker exec -it <container_id> /bin/bash** => Executes the Interactive Terminal inside of a Container
 - **docker run -d --name <container_name> <image_name>** => for name of container
 
 I found this blog fundamental for an overview of Docker -> [Medium - Docker Tutorial for beginners](https://medium.com/geekculture/docker-tutorial-for-beginners-8af6a4967378)
@@ -480,5 +480,35 @@ I found this blog fundamental for an overview of Docker -> [Medium - Docker Tuto
 Now the fun part of the day - We had the Potluck Party today, and it was amazingggg. We got to taste so many delicious delicacies - featuring lip-smacking Coleslaw Sandwich (made by our python trainees team), and super delicious Mojito (by python developers team).
 
 Few of the other tasty dishes were - Cheese Loaded Mexican Nachos, Monaco bites, and everybody's favourite - Pani puri and Dahi Puri.
+
+So that's it for today, see you tomorrow. Bye!
+
+##### Dt. 22 May, 2025.
+
+I have completed 2 hours from [Techworld with Nana](https://youtu.be/3c-iBn73dDE) video. Following new commands I have learnt -
+
+**docker network ls** -> To list all networks
+**docker network create <network_name>** -> To create new network
+**docker run -e <variable_value_pair>** -> To run container with environment variables
+**docker run --net <network_name>** -> To run container is a specified network
+**docker logs <container_name> | tail** -> To create logs of a container
+**docker-compose -f <file_name> up** -> To build a network of containers using Compose
+**docker-compose -f <file_name> down** -> To stop the network of containers
+**docker build -t <image_name>:<version> <file_path>** -> To build an image of application
+
+#### Few Notes -
+
+- Everytime new container is built its data is lost, to have persistent data use Docker Volumes instead.
+- Docker Compose is used to bundle various containers together and all the parameters of the Docker command can be added inside the yaml file instead.
+- Dockerfile is a blueprint to create Docker images. It is always based on another image, using the FROM keyword.
+- FROM, ENV, RUN, CMD and COPY are the kywords used inside dockerfile.
+- Why you should not copy env files inside images? Because of security reasons as those confidential data can be accessed by others as well.
+- Rather add it in docker-compose file or add the env variables in command on runtime
+
+I found this stackoverflow article useful - [Docker-Compose Common Mistake](https://stackoverflow.com/questions/36724948/docker-compose-unsupported-config-option-for-services-service-web)
+
+I have containerized both the POCs that I had created in FastAPI, you can have a look at it here -> [FastAPI-POC](https://github.com/Tanishqua-Simform/FastAPI-POC).
+
+I have created a simple container for POC-1 whereas 2 containers for POC-2 using docker compose. One I have created for Postgres and the other for my FastAPI App.
 
 So that's it for today, see you tomorrow. Bye!
