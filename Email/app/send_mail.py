@@ -6,13 +6,16 @@ from fastapi import BackgroundTasks
 from fastapi_mail import ConnectionConfig, MessageSchema, FastMail, MessageType
 from celery import Celery
 
+load_dotenv()
+
+REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
+REDIS_PORT = os.getenv('REDIS_PORT', 6379)
+
 celery = Celery(
     'tasks',
-    broker='redis://localhost:6379/0',
-    backend='redis://localhost:6379/0'
+    broker=f'redis://{REDIS_HOST}:{REDIS_PORT}/0',
+    backend=f'redis://{REDIS_HOST}:{REDIS_PORT}/0'
 )
-
-load_dotenv()
 
 MAIL_USERNAME = os.getenv('MAIL_USERNAME')
 MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
