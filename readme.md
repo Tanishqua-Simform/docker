@@ -487,14 +487,14 @@ So that's it for today, see you tomorrow. Bye!
 
 I have completed 2 hours from [Techworld with Nana](https://youtu.be/3c-iBn73dDE) video. Following new commands I have learnt -
 
-**docker network ls** -> To list all networks
-**docker network create <network_name>** -> To create new network
-**docker run -e <variable_value_pair>** -> To run container with environment variables
-**docker run --net <network_name>** -> To run container is a specified network
-**docker logs <container_name> | tail** -> To create logs of a container
-**docker-compose -f <file_name> up** -> To build a network of containers using Compose
-**docker-compose -f <file_name> down** -> To stop the network of containers
-**docker build -t <image_name>:<version> <file_path>** -> To build an image of application
+- **docker network ls** -> To list all networks
+- **docker network create <network_name>** -> To create new network
+- **docker run -e <variable_value_pair>** -> To run container with environment variables
+- **docker run --net <network_name>** -> To run container is a specified network
+- **docker logs <container_name> | tail** -> To create logs of a container
+- **docker-compose -f <file_name> up** -> To build a network of containers using Compose
+- **docker-compose -f <file_name> down** -> To stop the network of containers
+- **docker build -t <image_name>:<version> <file_path>** -> To build an image of application
 
 #### Few Notes -
 
@@ -512,3 +512,42 @@ I have containerized both the POCs that I had created in FastAPI, you can have a
 I have created a simple container for POC-1 whereas 2 containers for POC-2 using docker compose. One I have created for Postgres and the other for my FastAPI App.
 
 So that's it for today, see you tomorrow. Bye!
+
+##### Dt. 23 May, 2025.
+
+Today, I have implemented Email in FastAPI using Jinja Template. I have implemented both Async way of sending emails as well as sending those as background tasks.
+
+Async handler paused the execution and buffered a little till the mail was sent whereas in background task the task was performed in a different thread than main execution thread, so it returned response instantaneously. You can have a look at it here -> [Email](/Email/)
+
+Later we had an hour long meet with the HR regarding the training period and what we liked about our training and what improvements can be made in it.
+
+I found these blogs useful,
+
+- [Medium - Email in FastApi](https://medium.com/nerd-for-tech/how-to-send-email-using-python-fastapi-947921059f0c)
+- [FastAPI - Templates](https://fastapi.tiangolo.com/advanced/templates/)
+- [FastAPI-mail - Sample Mail](https://sabuhish.github.io/fastapi-mail/example/)
+
+Then I started working on implementing email sending feature with celery but it was throwing some errors, then we all trainee went to have Vadapav and Dabeli, but when we returned there was some downtime in network, so we were told to leave early and hence, I am writing this on (26th May)
+
+##### Dt. 26 May, 2025.
+
+Today, I have solved 16 Sql queries from [SQL Practice](https://www.sql-practice.com/) for having a change of mind. Then I solved 2 questions from LeetCode.
+
+Then I read about Async Programming from - [Concurrency and Async-Await](https://fastapi.tiangolo.com/async/), which we later discussed with our mentor.
+
+- Concurrency is better for tasks that have a lot of waiting time (idle state for CPU), whereas parallelism is better for sequential tasks with minimal to no waiting time.
+
+- Multitasking in python is performed using -
+
+  1. Async Programming (Single threaded, Concurrrent, IO-bound tasks),
+  2. Multi-threading (Multiple-threads, IO-bound Tasks, Shared memory),
+  3. Multi-processing (Multiple-processes, CPU-bound tasks).
+
+Then I completed the celery and redis task which was pending on Friday. I containerized them as well using docker later.
+
+I found these blogs useful -
+
+- [Stackoverflow - Celery Executable not found in path (Error)](https://stackoverflow.com/questions/75075546/celery-executable-file-not-found-in-path)
+- [Blog - Dockerize FastAPI and Celery](https://www.nashruddinamin.com/blog/dockerize-your-fastapi-and-celery-application)
+
+So that's it for today, see you tomorrow. Bye.
