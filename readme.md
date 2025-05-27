@@ -551,3 +551,558 @@ I found these blogs useful -
 - [Blog - Dockerize FastAPI and Celery](https://www.nashruddinamin.com/blog/dockerize-your-fastapi-and-celery-application)
 
 So that's it for today, see you tomorrow. Bye.
+
+##### Dt. 27 May, 2025.
+
+## **💾 Section 5: Data Persistence in Docker**
+
+By default, when a container is removed, **all its data is lost**. To persist or share data, we use **Volumes** and **Mounts**.
+
+### **5.1 Types of Storage in Docker**
+
+| Storage Type     | Description                                                            |
+| ---------------- | ---------------------------------------------------------------------- |
+| **Volumes**      | Managed by Docker, best for persistent data                            |
+| **Bind Mounts**  | Link host path to container path directly                              |
+| **tmpfs Mounts** | Stored in memory, disappears when container stops (useful for secrets) |
+
+### **5.2 Docker Volumes**
+
+#### 📦 Create a Volume
+
+```bash
+docker volume create mydata
+```
+
+#### 🔍 List Volumes
+
+```bash
+docker volume ls
+```
+
+#### 🗑️ Remove Volume
+
+```bash
+docker volume rm mydata
+```
+
+#### 📌 Use Volume in a Container
+
+```bash
+docker run -d --name db \
+  -v mydata:/var/lib/mysql \
+  mysql:8
+```
+
+- `mydata`: Volume name
+- `/var/lib/mysql`: Path **inside the container**
+
+> Docker stores volume data in `/var/lib/docker/volumes/`
+
+### **5.3 Bind Mounts**
+
+#### 📎 Mount a Host Directory
+
+```bash
+docker run -v /absolute/host/path:/app myimage
+```
+
+Example:
+
+```bash
+docker run -it --rm \
+  -v $PWD:/app \
+  python:3.11-slim \
+  bash
+```
+
+> ✅ Good for **development** — changes on host reflect instantly in the container.
+
+### **5.4 tmpfs Mounts**
+
+#### 📂 In-Memory Storage
+
+```bash
+docker run --tmpfs /run/secrets busybox
+```
+
+- Data written here is stored in memory.
+- Use for **ephemeral, sensitive** data.
+
+### **5.5 Inspect Mounts in a Container**
+
+```bash
+docker inspect <container_name>
+```
+
+Look for the `Mounts` key in the JSON output.
+
+### **5.6 Named vs Anonymous Volumes**
+
+#### Named Volume (explicit):
+
+```bash
+-v mydata:/data
+```
+
+#### Anonymous Volume (implicit):
+
+```bash
+-v /data
+```
+
+- Docker creates a random name.
+- Harder to manage.
+
+## **🌐 Section 6: Docker Networking**
+
+Docker uses virtual networks to allow containers to **communicate with each other**, with the host, and with the internet.
+
+### **6.1 Docker Network Types**
+
+| Network Type | Description                               |
+| ------------ | ----------------------------------------- |
+| **bridge**   | Default for standalone containers         |
+| **host**     | Shares host’s network stack               |
+| **none**     | Isolated container (no network access)    |
+| **overlay**  | Cross-host communication (used in Swarm)  |
+| **macvlan**  | Assigns MAC address from physical network |
+
+For most use cases, you'll work with **bridge** and **custom bridge networks**.
+
+### **6.2 Inspect Docker Networks**
+
+```bash
+docker network ls
+docker network inspect bridge
+```
+
+### **6.3 Create a Custom Network**
+
+```bash
+docker network create mynet
+```
+
+> Why? Containers on **custom networks** can communicate by name (DNS enabled).
+
+### **6.4 Connecting Containers**
+
+```bash
+# Create network
+docker network create app-net
+
+# Run containers in that network
+docker run -d --name db --network app-net postgres
+docker run -d --name web --network app-net mywebapp
+```
+
+Now `web` can access the `db` container by hostname `db`.
+
+### **6.5 Bridge Network Example**
+
+```bash
+docker network create my-bridge-net
+
+docker run -d --name app1 --network my-bridge-net alpine sleep 1000
+docker run -it --name app2 --network my-bridge-net alpine sh
+```
+
+Inside `app2`:
+
+```sh
+ping app1
+```
+
+> 🔗 Docker sets up internal DNS for containers on the **same custom bridge**.
+
+### **6.6 Host Network (Linux only)**
+
+```bash
+docker run --network host nginx
+```
+
+- Shares host’s network namespace.
+- Fast, but risky (no isolation).
+
+### **6.7 Disconnect / Connect Containers**
+
+```bash
+docker network disconnect mynet container_name
+docker network connect mynet container_name
+```
+
+### **6.8 Port Mapping (Host ↔️ Container)**
+
+```bash
+docker run -p 8080:80 nginx
+```
+
+| Host Port | Container Port       |
+| --------- | -------------------- |
+| `8080`    | `80` (Nginx default) |
+
+Now visit: `http://localhost:8080`
+
+### **6.9 Expose Port (in Dockerfile)**
+
+```dockerfile
+EXPOSE 5000
+```
+
+> This does **not** publish the port — it’s only documentation. Use `-p` to actually publish.
+
+## **Section 7: Docker Compose**
+
+Docker Compose lets you **define and manage multi-container applications** using a simple YAML file.
+
+### **7.1 What is Docker Compose?**
+
+- Tool for **defining** and **running** multi-container Docker applications.
+- Configuration stored in `docker-compose.yml`.
+- Run all services with **one command**.
+
+### **7.2 Install Docker Compose (if needed)**
+
+Docker Compose is bundled with Docker Desktop.
+On Linux, install it with:
+
+```bash
+sudo apt install docker-compose-plugin
+```
+
+Verify:
+
+```bash
+docker compose version
+```
+
+### **7.3 Basic `docker-compose.yml` Example**
+
+```yaml
+version: "3.9"
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: mydb
+```
+
+### **7.4 Commands to Use**
+
+```bash
+docker compose up            # Start services
+docker compose up -d         # Detached mode
+docker compose down          # Stop & remove containers, networks, volumes
+docker compose build         # Build images
+docker compose logs          # Show logs
+docker compose ps            # List running containers
+```
+
+### \*\*7.5 Volumes, Networks, Env in Compose\*\*
+
+#### Add volumes:
+
+```yaml
+volumes:
+  - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
+```
+
+#### Add networks:
+
+```yaml
+networks:
+  - backend
+
+networks:
+  backend:
+```
+
+#### Load env variables:
+
+```yaml
+env_file:
+  - .env
+```
+
+### **7.6 Depends On**
+
+```yaml
+depends_on:
+  - db
+```
+
+> Controls startup **order**, but not readiness. For wait-until-ready behavior, use healthchecks or wait-for-it.sh.
+
+### **7.7 Compose File Structure Summary**
+
+```yaml
+version: "3.9"
+services:
+  servicename:
+    build: ./dir
+    image: customimage
+    ports: ["host:container"]
+    volumes: ["host:container"]
+    environment: ["KEY=value"]
+    env_file: [.env]
+    networks: [net1]
+    depends_on: [other_service]
+volumes:
+  myvolume:
+networks:
+  net1:
+```
+
+## **🧠 Section 8: Dockerfile Best Practices**
+
+A clean, efficient, and secure Dockerfile results in **smaller, faster, and more secure containers**.
+
+### **8.1 Use Small Base Images**
+
+Start with **minimal images** when possible.
+
+```dockerfile
+FROM python:3.11-slim   # ✅ Better than full python:3.11
+FROM alpine              # ✅ Extremely lightweight (5 MB)
+```
+
+> Smaller images = faster downloads, reduced attack surface.
+
+### **8.2 Reduce Layers**
+
+Each `RUN`, `COPY`, `ADD` creates a **layer**. Combine commands to minimize:
+
+```dockerfile
+# ✅ Better (fewer layers)
+RUN apt-get update && apt-get install -y \
+    gcc libpq-dev \
+ && rm -rf /var/lib/apt/lists/*
+```
+
+### **8.3 Avoid Installing Unnecessary Packages**
+
+Only install what your app needs. Don’t blindly use:
+
+```dockerfile
+RUN apt-get install -y build-essential  # ❌ Overkill
+```
+
+### **8.4 Use `.dockerignore` File**
+
+Avoid sending unnecessary files to Docker daemon:
+
+```dockerignore
+.git
+node_modules
+__pycache__/
+*.pyc
+.env
+```
+
+### **8.5 Pin Image Versions**
+
+Avoid breaking changes by locking versions:
+
+```dockerfile
+FROM node:18.16.1   # ✅ Safe
+FROM node:latest    # ❌ Risky
+```
+
+### **8.6 Use Multi-Stage Builds**
+
+Keep build tools out of your final image:
+
+```dockerfile
+# Stage 1: Build
+FROM node:18 AS builder
+WORKDIR /app
+COPY . .
+RUN npm install && npm run build
+
+# Stage 2: Runtime
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+```
+
+> ✅ Final image is clean and minimal.
+
+### **8.7 Set a Non-Root User**
+
+```dockerfile
+RUN useradd -m appuser
+USER appuser
+```
+
+> Never run containers as `root` in production.
+
+### **8.8 Use `ENTRYPOINT` vs `CMD`**
+
+- `ENTRYPOINT`: defines **fixed** command
+- `CMD`: defines **default arguments**
+
+```dockerfile
+ENTRYPOINT ["python"]
+CMD ["app.py"]
+```
+
+Run:
+
+```bash
+docker run myimage              # → python app.py
+docker run myimage test.py     # → python test.py
+```
+
+### **8.9 Layer Caching Optimization**
+
+Put frequently-changing steps **last** to use Docker cache effectively.
+
+```dockerfile
+# ✅ Better cache use
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+```
+
+## **📦 Section 9: Docker Hub, Registries, and Image Distribution**
+
+Docker images need to be **shared and distributed** — this is done via **container registries** like Docker Hub, GitHub Container Registry, AWS ECR, etc.
+
+### **9.1 What is a Container Registry?**
+
+A **registry** is a storage and distribution system for container images.
+
+- **Public Registry** (e.g., Docker Hub)
+- **Private Registry** (e.g., self-hosted or cloud-specific like AWS ECR, GCP Artifact Registry)
+
+> Docker pulls images from registries and pushes images to registries.
+
+### **9.2 Popular Registries**
+
+| Registry                      | Description                       |
+| ----------------------------- | --------------------------------- |
+| **Docker Hub**                | Default public registry           |
+| **GitHub Container Registry** | Tied to GitHub accounts           |
+| **AWS ECR**                   | Amazon Elastic Container Registry |
+| **GCP Artifact Registry**     | Google Cloud's registry           |
+| **Azure ACR**                 | Azure Container Registry          |
+
+### **9.3 Docker Hub Basics**
+
+#### 🔐 Login
+
+```bash
+docker login
+```
+
+Enter Docker Hub username and password/token.
+
+#### 📤 Push an Image
+
+```bash
+docker tag myimage username/myimage:tag
+docker push username/myimage:tag
+```
+
+#### 📥 Pull an Image
+
+```bash
+docker pull ubuntu:latest
+```
+
+### **9.4 Docker Image Tags**
+
+Docker images have names like:
+
+```bash
+repository[:tag]
+```
+
+Examples:
+
+- `nginx:latest`
+- `myuser/myapp:v1.0`
+- `python:3.11-slim`
+
+> Tag `latest` is default if no tag is given.
+
+### **9.5 Build and Push Workflow**
+
+```bash
+# Build image
+docker build -t myapp .
+
+# Tag for Docker Hub
+docker tag myapp myusername/myapp:1.0
+
+# Push to Docker Hub
+docker push myusername/myapp:1.0
+```
+
+### **9.6 View & Manage Repositories on Docker Hub**
+
+Go to: [https://hub.docker.com](https://hub.docker.com)
+
+- Create a repo
+- Manage visibility (public/private)
+- Add collaborators
+
+### **9.7 Image Pull Policy**
+
+Docker determines whether to pull an image based on tag and availability.
+
+| Policy           | Behavior                                     |
+| ---------------- | -------------------------------------------- |
+| `always`         | Always pulls from registry                   |
+| `never`          | Never pulls — only use local                 |
+| `if-not-present` | Default; pulls only if not locally available |
+
+Used in Kubernetes or advanced Compose configs.
+
+### **9.8 Private Registry (Optional)**
+
+Run a registry locally:
+
+```bash
+docker run -d -p 5000:5000 --name registry registry:2
+```
+
+Push image:
+
+```bash
+docker tag myapp localhost:5000/myapp
+docker push localhost:5000/myapp
+```
+
+> Useful in internal networks.
+
+Then, I solved 2 questions on backtracking from LeetCode. Later, I attended a session on SDLC by ML team, it covered various phases of SDLC as well as Monolithic and Microservices architecture. We will discuss about HLD and LLD in next session.
+
+SDLC consists of 6 phases - Requirement gathering, Designing, Development, Testing, Deployment, Maintainence.
+
+I found these resources helpful -
+
+- [Monolithic Vs. MicroServices](https://www.geeksforgeeks.org/monolithic-vs-microservices-architecture/)
+- [API Throttling Vs. API Rate Limiting](https://www.geeksforgeeks.org/api-throttling-vs-api-rate-limiting-system-design/)
+
+Later, I read about testing in FastAPI and jot down following points -
+
+- Fixtures in Pytest are used for setup and cleaning work to be done during testing.
+- Fixtures are given cartain scope in which they nust be set up and torn down.
+- Autouse in fixtures is used to send that particular fixture as argument to all the test functions.
+
+I also read about few of the security breaches that can be performed on a system, such as XSS, CSRF, and MITM attacks.
+
+So that's it for this repo, see you tomorrow with new concept. Bye!
+
+###### With this we come to an end for our Docker Course (Learning duration - 7 days)
